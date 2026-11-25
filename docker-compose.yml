@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+  app-devops:
+    build: .
+    container_name: projeto-devops-app
+    restart: unless-stopped

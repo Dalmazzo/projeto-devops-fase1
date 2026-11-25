@@ -1,4 +1,4 @@
-name: Pipeline CI
+name: Pipeline CI/CD
 
 on:
   push:
@@ -7,19 +7,37 @@ on:
     branches: [ "main" ]
 
 jobs:
+  # ETAPA 1: Integração Contínua (CI)
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-    - name: Fazer o checkout do código
-      uses: actions/checkout@v3
+      - name: Fazer o checkout do código
+        uses: actions/checkout@v4
 
-    - name: Configurar Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-    - name: Instalar dependências
-      run: npm install
+      - name: Instalar dependências
+        run: npm install
 
-    - name: Executar testes automatizados
-      run: npm test
+      - name: Executar testes automatizados
+        run: npm test
+
+  # ETAPA 2: Entrega Contínua (CD)
+  cd-build-and-deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fazer o checkout do código
+        uses: actions/checkout@v4
+
+      - name: Construir imagem Docker da aplicação
+        run: docker build -t projeto-devops-app:latest .
+
+      - name: Validar execução do container (Smoke Test de Deploy)
+        run: docker run --rm projeto-devops-app:latest
+
+      - name: Validar sintaxe do script de deploy
+        run: bash -n deploy.sh
